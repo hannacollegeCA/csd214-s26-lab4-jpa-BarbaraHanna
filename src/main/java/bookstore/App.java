@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
+// Integrates the Cosmetic niche products (Moisturizer, Serum)
+// into the existing JPA-backed CLI alongside Books, Magazines, DiscMags, and Tickets.
+// Implements Add, List, Edit, Sell, and data seeding for the niche entities.
+
+
 public class App {
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("bookstore-pu");
     private EntityManager em = emf.createEntityManager();
@@ -75,6 +80,8 @@ public class App {
             System.out.println("2. Add Magazine");
             System.out.println("3. Add DiscMag");
             System.out.println("4. Add Ticket");
+            System.out.println("5. Add Moisturizer"); //my niche
+            System.out.println("6. Add Serum"); // my niche
             System.out.println("99. Exit");
 
             try {
@@ -93,6 +100,8 @@ public class App {
                 case 2: item = new Magazine(); break;
                 case 3: item = new DiscMag(); break;
                 case 4: item = new Ticket(); break;
+                case 5: item = new Moisturizer(); break; //my niche DTO
+                case 6: item = new Serum(); break; //my niche DTO
                 default: System.out.println("Invalid selection."); continue;
             }
 
@@ -111,6 +120,11 @@ public class App {
             entity = ((Magazine) item).toEntity();
         } else if (item instanceof Ticket) {
             entity = ((Ticket) item).toEntity();
+        }
+        else if (item instanceof Moisturizer) {
+            entity = ((Moisturizer) item).toEntity();
+        } else if (item instanceof Serum) {
+            entity = ((Serum) item).toEntity();
         }
 
         if (entity != null) {
@@ -139,6 +153,8 @@ public class App {
             System.out.println("3. Magazines Only");
             System.out.println("4. DiscMags Only");
             System.out.println("5. Tickets Only");
+            System.out.println("6. Moisturizers Only"); //my niche
+            System.out.println("7. Serums Only");//my niche
             System.out.println("99. Exit");
 
             try {
@@ -158,6 +174,8 @@ public class App {
                 case 3: filterClass = MagazineEntity.class; break;
                 case 4: filterClass = DiscMagEntity.class; break;
                 case 5: filterClass = TicketEntity.class; break;
+                case 6: filterClass = MoisturizerEntity.class; break; //my niche
+                case 7: filterClass = SerumEntity.class; break; //my niche
                 default: System.out.println("Invalid selection."); continue;
             }
 
@@ -187,6 +205,13 @@ public class App {
         } else if (entity instanceof TicketEntity) {
             System.out.println(Ticket.fromEntity((TicketEntity) entity));
         }
+        // Convert the Entity back to the correct DTO typ
+        else if (entity instanceof MoisturizerEntity) {
+            System.out.println(Moisturizer.fromEntity((MoisturizerEntity) entity));
+        } else if (entity instanceof SerumEntity) {
+            System.out.println(Serum.fromEntity((SerumEntity) entity));
+        }
+
     }
 
     public void editItem() {
@@ -225,6 +250,18 @@ public class App {
                     dto.edit(this.input);
                     em.merge(dto.toEntity());
                 }
+
+                // Convert Entity → DTO → let user edit → convert back → merge
+                else if (entity instanceof MoisturizerEntity) {
+                    Moisturizer dto = Moisturizer.fromEntity((MoisturizerEntity) entity);
+                    dto.edit(this.input);
+                    em.merge(dto.toEntity());
+                } else if (entity instanceof SerumEntity) {
+                    Serum dto = Serum.fromEntity((SerumEntity) entity);
+                    dto.edit(this.input);
+                    em.merge(dto.toEntity());
+                }
+
 
                 em.getTransaction().commit();
                 System.out.println("Successfully merged updates to the database via JPA.");
@@ -303,6 +340,17 @@ public class App {
                     cashTill.sellItem(dto);
                     em.merge(dto.toEntity());
                 }
+                // Convert Entity > DTO > let user edit > convert back > merge
+                else if (entity instanceof MoisturizerEntity) {
+                    Moisturizer dto = Moisturizer.fromEntity((MoisturizerEntity) entity);
+                    cashTill.sellItem(dto);
+                    em.merge(dto.toEntity());
+                } else if (entity instanceof SerumEntity) {
+                    Serum dto = Serum.fromEntity((SerumEntity) entity);
+                    cashTill.sellItem(dto);
+                    em.merge(dto.toEntity());
+                }
+
 
                 em.getTransaction().commit();
             }
@@ -335,6 +383,24 @@ public class App {
                         faker.book().author()
                 );
                 em.persist(b);
+
+                // Moisturizer
+                // Create some random products, including my niche ones
+                MoisturizerEntity mo = new MoisturizerEntity(
+                        faker.options().option("Dry", "Oily", "Combination", "Normal"),
+                        faker.number().randomDouble(2, 10, 40),
+                        faker.bool().bool()
+                );
+                em.persist(mo);
+
+                // Serum
+                SerumEntity se = new SerumEntity(
+                        faker.options().option("Dry", "Oily", "Combination", "Normal"),
+                        faker.number().randomDouble(2, 15, 60),
+                        faker.options().option("Vitamin C", "Retinol", "Hyaluronic Acid", "Niacinamide")
+                );
+                em.persist(se);
+
 
                 // Magazine
                 MagazineEntity m = new MagazineEntity(
