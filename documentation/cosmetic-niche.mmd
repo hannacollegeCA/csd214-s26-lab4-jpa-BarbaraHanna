@@ -1,0 +1,28 @@
+classDiagram
+
+%% Base
+class Product {
+    <<Abstract>>
+    -String productId
+}
+
+%% Cosmetic Category
+class CosmeticEntity {
+    <<Abstract>>
+    -String skinType
+    -double price
+}
+
+Product <|-- CosmeticEntity
+
+%% Specific Niche
+class MoisturizerEntity {
+    -boolean oilFree
+}
+
+class SerumEntity {
+    -String activeIngredient
+}
+
+CosmeticEntity <|-- MoisturizerEntity
+CosmeticEntity <|-- SerumEntity

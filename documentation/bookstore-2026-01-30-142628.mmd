@@ -10,6 +10,10 @@ classDiagram
 
     Product <-- CashTill
 
+    Product <|-- CosmeticEntity
+    CosmeticEntity <|-- MoisturizerEntity
+    CosmeticEntity <|-- SerumEntity
+
     class SaleableItem {
         <<interface>>
         +sellItem()
@@ -36,6 +40,20 @@ classDiagram
         -String productId
         +getProductId() String
         +setProductId(String productId)
+    }
+
+    class CosmeticEntity {
+        <<abstract>>
+        -String skinType
+        -double price
+    }
+
+    class MoisturizerEntity {
+        -boolean oilFree
+    }
+
+    class SerumEntity {
+        -String activeIngredient
     }
 
     class Ticket {
